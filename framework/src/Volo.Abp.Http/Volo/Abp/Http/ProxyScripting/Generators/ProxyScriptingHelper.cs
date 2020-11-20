@@ -100,7 +100,7 @@ namespace Volo.Abp.Http.ProxyScripting.Generators
             }
 
             var qsBuilderParams = queryStringParameters
-                .Select(p => $"{{ name: '{p.Name.ToCamelCase()}', value: {ProxyScriptingJsFuncHelper.GetParamNameInJsFunc(p)} }}")
+                .Select(p => $"{{ name: '{(p.BindName ?? p.Name).ToCamelCase()}', value: {ProxyScriptingJsFuncHelper.GetParamNameInJsFunc(p)} }}")
                 .JoinAsString(", ");
 
             return url + $"' + abp.utils.buildQueryString([{qsBuilderParams}]) + '";

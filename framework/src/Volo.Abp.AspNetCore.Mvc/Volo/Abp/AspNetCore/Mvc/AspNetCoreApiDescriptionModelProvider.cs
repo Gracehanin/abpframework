@@ -284,13 +284,13 @@ namespace Volo.Abp.AspNetCore.Mvc
 
             var parameterDescriptionNames = apiDescription
                 .ParameterDescriptions
-                .Select(p => p.Name)
+                .Select(GetApiParameterDescriptionName)
                 .ToArray();
 
             var methodParameterNames = method
                 .GetParameters()
                 .Where(IsNotFromServicesParameter)
-                .Select(GetMethodParamName)
+                .Select(x => x.Name)
                 .ToArray();
 
             var matchedMethodParamNames = ArrayMatcher.Match(
@@ -303,10 +303,11 @@ namespace Volo.Abp.AspNetCore.Mvc
                 var parameterDescription = apiDescription.ParameterDescriptions[i];
                 var matchedMethodParamName = matchedMethodParamNames.Length > i
                     ? matchedMethodParamNames[i]
-                    : parameterDescription.Name;
+                    : GetApiParameterDescriptionName(parameterDescription);
 
                 actionModel.AddParameter(ParameterApiDescriptionModel.Create(
-                        parameterDescription.Name,
+                        GetApiParameterDescriptionName(parameterDescription),
+                        parameterDescription.BindingInfo?.BinderModelName,
                         matchedMethodParamName,
                         parameterDescription.Type,
                         parameterDescription.RouteInfo?.IsOptional ?? false,
@@ -321,23 +322,14 @@ namespace Volo.Abp.AspNetCore.Mvc
             }
         }
 
+        private static string GetApiParameterDescriptionName(ApiParameterDescription apiParameterDescription)
+        {
+            return apiParameterDescription.ModelMetadata.Name ?? apiParameterDescription.Name;
+        }
+
         private static bool IsNotFromServicesParameter(ParameterInfo parameterInfo)
         {
             return !parameterInfo.IsDefined(typeof(FromServicesAttribute), true);
-        }
-
-        public string GetMethodParamName(ParameterInfo parameterInfo)
-        {
-            var modelNameProvider = parameterInfo.GetCustomAttributes()
-                .OfType<IModelNameProvider>()
-                .FirstOrDefault();
-
-            if (modelNameProvider == null)
-            {
-                return parameterInfo.Name;
-            }
-
-            return modelNameProvider.Name ?? parameterInfo.Name;
         }
 
         private static string GetRootPath([NotNull] Type controllerType,

@@ -134,8 +134,8 @@ namespace Volo.Abp.Http.ProxyScripting.Generators
         public static string GetFormPostParamNameInJsFunc(ParameterApiDescriptionModel parameterInfo)
         {
             return parameterInfo.Name == parameterInfo.NameOnMethod
-                ? NormalizeJsVariableName((parameterInfo.DescriptorName + parameterInfo.Name).ToCamelCase(), ".")
-                : NormalizeJsVariableName(parameterInfo.NameOnMethod.ToCamelCase()) + "." + NormalizeJsVariableName((parameterInfo.DescriptorName + parameterInfo.Name).ToCamelCase(), ".");
+                ? NormalizeJsVariableName(parameterInfo.DescriptorName + parameterInfo.Name, ".")
+                : NormalizeJsVariableName(parameterInfo.NameOnMethod) + NormalizeJsVariableName(parameterInfo.Name, ".");
         }
 
         public static string CreateJsFormPostData(ParameterApiDescriptionModel[] parameters, int indent)
@@ -147,8 +147,8 @@ namespace Volo.Abp.Http.ProxyScripting.Generators
                 var and = i < parameters.Length - 1 ? " + '&' + " : string.Empty;
 
                 var parameterName = parameters[i].DescriptorName.IsNullOrWhiteSpace()
-                    ? parameters[i].Name
-                    : $"{parameters[i].DescriptorName}.{parameters[i].Name}";
+                    ? parameters[i].BindName ?? parameters[i].Name
+                    : $"{parameters[i].DescriptorName}.{parameters[i].BindName ?? parameters[i].Name}";
 
                 sb.Append($"'{parameterName}=' + {GetFormPostParamNameInJsFunc(parameters[i])}{and}");
             }
