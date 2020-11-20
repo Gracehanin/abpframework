@@ -324,7 +324,9 @@ namespace Volo.Abp.AspNetCore.Mvc
 
         private static string GetApiParameterDescriptionName(ApiParameterDescription apiParameterDescription)
         {
-            return apiParameterDescription.ModelMetadata.Name ?? apiParameterDescription.Name;
+            return apiParameterDescription.BindingInfo != null && apiParameterDescription.ModelMetadata?.Name != null
+                ? apiParameterDescription.ModelMetadata.Name
+                : apiParameterDescription.Name;
         }
 
         private static bool IsNotFromServicesParameter(ParameterInfo parameterInfo)
